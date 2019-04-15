@@ -1,0 +1,51 @@
+
+MyData<- mtcars
+carname<- rownames(MyData) # adding car names
+MyData<- data.frame(carname, MyData)
+rownames(MyData)<- NULL
+MyDataZ<- as.data.frame(scale(MyData[,-1])) # ���� ������ ���� ���� ��� ����� �� ������ ������� ���� �� �������
+# ������ �������� �� ��� ���� ����� ��� 1 ������ 0 
+summary(MyDataZ)
+head(MyDataZ, 4)
+write.csv(MyDataZ, "dist.csv")
+d<- dist(MyDataZ, method="euclidean") # ������ ������ ������ ���� ���� �� �� ��� �������� ��������, �� ����� ���� �� ��� ������ �� 2 �������
+as.matrix((d)[1:4, 1:4])
+pfit<- hclust(d, method="complete")#  hclust- �� ������ �� ����� ����� HCA
+plot(pfit, labels=MyData$carname, hang = -1, cex=.9, main= "complete Linkage")
+plot(pfit, hang = -1, cex=.9, main= "complete Linkage")
+pfit$merge #�� ������ �� ������ ��� ������ �� ��� �������
+pfit$height 
+rect.hclust(pfit, k=5)
+clusters<- cutree(pfit, k=5)
+MyData$clusters<- clusters 
+MyData$clusters<- factor(MyData$clusters, level=1:5, labels=c("Clus 1", "Clus 2","Clus 3" ,"Clus 4" , "Clus 5"))
+# ���� ������ ������� �� ������� ��� ����� ��� ������ �� �����
+ # (���� ������ ���� �� ���� �������,the group var, �������� ������ ������ )
+hp<- tapply(MyData$hp, MyData$clusters, mean)
+bpHP<- barplot(hp,main="hp by clusters", xlab="clusters", ylab="hp Mean", col="lightblue", ylim=c(0,320))
+text(bpHP,0, round(hp,0) ,cex=1, pos=3)
+# ���������� ���� ����� �� �������� ��� ���������
+# Acceleration (qsec)
+Acceleration  <- tapply(MyData$qsec,MyData$Clusters, mean)
+bpAcceleration<-barplot(Acceleration, main = "Acceleration by clusters", xlab = "cluster",
+                        ylab = "Acceleration Mean (Sec)",col ="green",
+                        ylim = c(0, 20))
+text(bpAcceleration, 0, round(Acceleration, 0),cex=1,pos=3) 
+
+# Fuel consumption (mpg)
+# mpg (miles per gallon)
+mpg  <- tapply(MyData$mpg,MyData$Clusters, mean)
+bpmpg<-barplot(mpg, main = "mpg by clusters", xlab = "cluster",
+               ylab = "mpg Mean",col ="red",
+               ylim = c(0, 30))
+text(bpmpg, 0, round(mpg, 0),cex=1,pos=3) 
+
+# Number of Cylinders
+cyl  <- tapply(MyData$cyl,MyData$Clusters, mean)
+bpcyl<-barplot(mpg, main = "cylinders by clusters", xlab = "cluster",
+               ylab = "cyl Mean",col ="yellow",
+               ylim = c(0, 30))
+text(bpcyl, 0, round(cyl, 0),cex=1,pos=3) 
+
+plot(MyData$hp~MyData$qsec ,col=MyData$Clusters, pch=16 , cex=1.5)
+legend(22,250, legend =levels(MyData$Clusters),fill = 1:5, cex = 0.7)
