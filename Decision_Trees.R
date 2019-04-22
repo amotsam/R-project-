@@ -1,4 +1,4 @@
-# Tirgul 9 - Evaluating Models
+# Evaluating Models
 
 # Remove old files from memory
 rm(list = ls())
