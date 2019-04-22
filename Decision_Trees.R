@@ -75,15 +75,13 @@ Sensitivity
 Specificity
 
 ###########################################################################
-Be careful! before using it, make sure that your confusion matrix
-structure is the same as mine. i.e., TRUE POSITIVE is in [2,2] 
-and TRUE NEGATIVES are in [1,1]. You can always change it to match your 
-confusion matrix.
+# Be careful! before using it, make sure that your confusion matrix
+# structure is the same as mine. i.e., TRUE POSITIVE is in [2,2] 
+# and TRUE NEGATIVES are in [1,1]. You can always change it to match your 
+# confusion matrix.
 
 ## This is another way of looking at measures
-Be careful! before using it, make sure that your confusion matrix
-structure is the same as mine. i.e., TRUE POSITIVE is in [2,2] 
-and TRUE NEGATIVES are in [1,1]
+
 
 TN <- ConfusionMat[1,1]
 FP <- ConfusionMat[1,2]
