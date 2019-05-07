@@ -1,1 +1,158 @@
+# Evaluating Models
+# Remove old files from memory
 
+rm(list = ls())
+
+# 1. load the packages rpart , rpart.plot.
+library(rpart)       #tree models
+
+library(rpart.plot)  #plot decision tree
+# 2. Read the Datafile
+
+MyData <- read.csv("treecredit.csv")
+
+dim(MyData)
+
+# 3. Split the data into training and testing datasets
+# To make sure that next time we'll get the same ordering
+
+set.seed(12345)
+# Choose numbers from a uniform distribution
+# MyData <- MyData[order(runif(1000)), ]
+
+
+
+# Adding a split column
+
+MyData$Sampling <- runif(nrow(MyData)) 
+# Here we generate a test set of about 30% of the data 
+# and train set on the remaining 70%.
+testSet <- subset(MyData, MyData$Sampling <= 0.3)
+# Remove the sampling column, we dont want it in the model process
+testSet <- testSet[,-7]
+nrow(testSet)
+
+
+
+trainingSet <- subset(MyData, MyData$Sampling > 0.3)
+
+# Remove the sampling column, we don't want it in the model process
+
+trainingSet <- trainingSet[,-7]
+nrow(trainingSet)
+nrow(trainingSet)+nrow(testSet)
+# 4. Building a tree classification model
+
+## this time we'll build it on the TRAINSET.
+# 5. Building the tree model
+CreditTree <- rpart(CreditRating ~ ., data=trainingSet)
+CreditTree # Display the tree node details
+##################################################################
+
+# plot the tree via rpart.plot function
+
+rpart.plot(CreditTree, type = 2,extra=103,cex=0.8, box.palette="GnBu",nn=TRUE)
+
+# or (extra=103 shows frequencies and extra=104 shows precents)
+
+rpart.plot(CreditTree, type = 2,extra=104,cex=0.8, box.palette="GnBu",nn=TRUE)
+
+##################################################################
+
+# 6. Confusion matrix
+
+Using the model to make predicions on the TRAINING set
+# Prediction based on the model we've just built
+
+# Type = "class", returns classification
+ClassifyTraining  <- predict(CreditTree, trainingSet, type = "class")
+table(ClassifyTraining)
+ClassifyTraining[1:10]
+# Adding the prediction to the trainingSet
+trainingSet$Prediction <- ClassifyTraining
+
+# confusion matrix
+ConfusionMat <- table(truth=trainingSet$CreditRating, pred=trainingSet$Prediction)
+ConfusionMat
+addmargins(ConfusionMat)
+
+# calculating Measures of Accuracy by matrix position notation
+Accuracy <- (ConfusionMat[1,1] + ConfusionMat[2,2])/sum(ConfusionMat)
+Precision   <-  ConfusionMat[2,2] / (ConfusionMat[2,2]+ConfusionMat[1,2])
+Sensitivity <-  ConfusionMat[2,2] / (ConfusionMat[2,2]+ConfusionMat[2,1])11
+Specificity <-  ConfusionMat[1,1] / (ConfusionMat[1,1]+ConfusionMat[1,2])
+
+Accuracy
+Precision
+Sensitivity
+Specificity
+
+###########################################################################
+# Be careful! before using it, make sure that your confusion matrix
+# structure is the same as mine. i.e., TRUE POSITIVE is in [2,2] 
+# and TRUE NEGATIVES are in [1,1]. You can always change it to match your 
+# confusion matrix.
+## This is another way of looking at measures
+
+TN <- ConfusionMat[1,1]
+FP <- ConfusionMat[1,2]
+FN <- ConfusionMat[2,1]
+TP <- ConfusionMat[2,2]
+
+Accuracy    <- (TP+TN)/(TP+FP+TN+FN)
+Precision   <- TP/(TP+FP)
+Sensitivity <- TP/(TP+FN)
+Specificity <- TN/(TN+FP)
+
+Accuracy
+Precision
+Sensitivity
+Specificity
+
+###########################################################################
+
+# Model Accuracy based on testSet
+
+# Prediction based on the model we've just built
+
+# Type = "class",  returns classification
+
+# x is a vector that holds a prediction for each case in our data
+ClassifyTestSet  <- predict(CreditTree, testSet, type = "class")
+table(ClassifyTestSet )
+
+# Adding the prediction to the testSet
+testSet$Prediction <- ClassifyTestSet
+
+# confusion matrix
+
+ConfusionMat <- table(truth=testSet$CreditRating, pred=testSet$Prediction)
+ConfusionMat
+
+# calculating Accuracy
+Accuracy <- (ConfusionMat[1,1] + ConfusionMat[2,2])/sum(ConfusionMat)
+
+# Validating model on TEST dataset
+
+## Confusion matrix is now based on our TEST data set
+
+
+
+TN <- ConfusionMat[1,1]
+FP <- ConfusionMat[1,2]
+FN <- ConfusionMat[2,1]
+TP <- ConfusionMat[2,2]
+
+
+
+Accuracy    <- (TP+TN)/(TP+FP+TN+FN)
+Precision   <- TP/(TP+FP)
+Sensitivity <- TP/(TP+FN)
+Specificity <- TN/(TN+FP)
+
+
+
+Accuracy
+Precision
+Sensitivity
+Specificity
