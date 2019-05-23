@@ -16,38 +16,6 @@ nyc_weather<- nyc_weather[,c(2,4,23)]
 nyc_weather$Date<- as.Date(nyc_weather$Date)
 
 
-
-           ##### DELETE THISS- begin #### 
-Uber_Sep2<- subset(Uber_Sep2, as.Date(Date.Time, format = "%m/%d/%Y") > as.Date("9/16/2014",format = "%m/%d/%Y"))
-for (i in 1:481698){
-  print(i)
-  flush.console() 
-
-  Uber_Sep2[i,5]<-distm (c(Uber[i,3], Uber[i,2]), c(-73.9739882,40.7813241), fun = distHaversine)
-}
-
-
-###### Take dist museum< 1000, and aggregate demands per 15 minutes starting from 00:00
-
-
-Uber_Sep2_Filtered<-subset(Uber_Sep2, V5<=1000)
-Uber_Sep2_Filtered$interval<-substring(Uber_Sep2_Filtered$Date.Time, first = 10, last = 18)
-Uber_Sep2_Filtered$interval<-floor_date(as.POSIXct(Uber_Sep2_Filtered$interval,format="%H:%M:%S"), "15 mins")
-Uber_Sep2_Filtered$interval<-substring(Uber_Sep2_Filtered$interval, first = 11, last = 19)
-
-Uber_Sep2_Filtered$Date<- as.POSIXct(substring(Uber_Sep2_Filtered$Date.Time, first = 1, last = 9),format="%m/%d/%Y") 
-
-intervals4<-Uber_Sep2_Filtered %>% 
-  group_by(Date, interval) %>%
-  summarize(n())
-
-ggplot(data = intervals4) +
-  geom_bar(mapping = aes(x = interval, y = `n()`), stat = "identity")+
-  coord_flip()+
-  theme(text = element_text(size=7),
-        axis.text.x = element_text(angle=90, hjust=1))
-
-######################################### september test results- DELETEEEEEE END ############
 write.csv(Uber_June,"Uber_June.csv")
 write.csv(Uber_Jul,"Uber_Jul.csv")
 write.csv(Uber_Aug,"Uber_Aug.csv")
@@ -538,26 +506,8 @@ Test$Prediction <- round(predict(poisson.model, newdata = Test, type = "response
 
 RMSE3<- sqrt(mean((Test$Prediction-Test$sum_of_interval)^2))
 RMSE3 
-### DELETE ### 
-nyc_weather_test<- read.csv('nyc.csv')
-nyc_weather_test<- subset(nyc_weather_test, as.Date(Date, format = "%Y-%m-%d") >= as.Date("2014-09-17",format = "%Y-%m-%d"))
-nyc_weather_test<- subset(nyc_weather_test, as.Date(Date, format = "%Y-%m-%d") <= as.Date("2014-09-30",format = "%Y-%m-%d"))
-nyc_weather_test<- nyc_weather_test[,c(2,4,23)]
-nyc_weather_test$Date<- as.Date(nyc_weather_test$Date)
-nyc_weather_test$Date<-as.POSIXct(nyc_weather_test$Date)
 
 
-intervals4<-merge(intervals4, nyc_weather_test,by="Date", all.intervals=TRUE)
-Training <- intervals4
-Test <- intervals4
-poisson.model<-glm(sum_of_interval ~hour+day+Date+Mean.TemperatureF, data = Training, family = quasipoisson(link = "log"))
-summary(poisson.model)
-Test$Prediction <- round(predict(poisson.model, newdata = Test, type = "response"))
-#END# 
- 
-
-### DELETE THIS 
-setdiff(test_d$Time_Interval,test_d5$date_time) # intervals that are missing in the prediction set
 
 ################ prediction ############################### 
 ifMinus<- function(v){
