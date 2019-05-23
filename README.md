@@ -1,3 +1,3 @@
-# R-project-
+# R projects
 R project  for data analysis.
 
